@@ -3,28 +3,24 @@
 set -eo pipefail
 set -x
 
-ACTION_STATE_NAME="${ACTION_STATE_NAME:-init.sls}"
+ACTION_STATES_DIR="${ACTION_STATES_DIR:-.}"
 
 set -u
 
 cd "${GITHUB_WORKSPACE}"
 
-ACTION_STATE_PATH="${GITHUB_WORKSPACE}/${ACTION_STATE_NAME}"
+ACTION_STATES_PATH="${GITHUB_WORKSPACE}/${ACTION_STATES_DIR}"
 
-if [ ! -f "${ACTION_STATE_PATH}" -a ! -d "${ACTION_STATE_PATH}" ]; then
-  >&2 echo "==> Can't find '${ACTION_STATE_PATH}'.
-    Please ensure to set up ACTION_STATE_NAME env var
+if [ ! -f "${ACTION_STATES_PATH}" -a ! -d "${ACTION_STATES_PATH}" ]; then
+  >&2 echo "==> Can't find '${ACTION_STATES_PATH}'.
+    Please ensure to set up ACTION_STATES_DIR env var
     relative to the root of your project."
   exit 1
 fi
 
 >&2 echo
->&2 echo "==> Linting ${ACTION_STATE_PATH}…"
+>&2 echo "==> Linting ${ACTION_STATES_PATH}…"
 
-if [ -d "${ACTION_STATE_PATH}" ]; then
-  salt-lint `find "${ACTION_STATE_PATH}" -type f -name init.sls`
-else
-  salt-lint "${ACTION_STATE_PATH}"
-fi
+salt-lint "${ACTION_STATES_PATH}"/*.sls
 
 >&2 echo
